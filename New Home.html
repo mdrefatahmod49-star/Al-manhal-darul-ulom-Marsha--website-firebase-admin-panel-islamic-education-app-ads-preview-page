@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আল মানহাল দারুল উলুম মাদ্রাসা - ইসলামের আলো ছড়িয়ে দিন</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --primary-green: #28a745;
+            --secondary-gold: #ffc107;
+            --islamic-green: #006400;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            line-height: 1.6;
+            direction: ltr;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* Header - NON-STICKY */
+        .navbar {
+            background: rgba(255,255,255,0.95) !important;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+            position: relative;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green) !important;
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 2px 5px;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #333 !important;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-green) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1573554304899-9b6f0f14ae47?w=1400') center/cover no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            color: white;
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .sheikh-quote {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--secondary-gold);
+            margin: 2rem 0;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--secondary-gold);
+        }
+
+        .sheikh-quote strong {
+            color: white;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* YouTube Videos Section - একটি থাম্বনেইল গ্যালারি */
+        .videos-section {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        /* New Video Gallery Styles */
+        .main-video-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            background: white;
+            margin-bottom: 1rem;
+        }
+        .main-video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .main-video-thumbnail {
+            width: 100%;
+            height: 250px; /* Adjust as needed */
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .sub-video-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            background: white;
+            height: 100%; /* Ensure cards are same height */
+        }
+        .sub-video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .sub-video-thumbnail {
+            width: 100%;
+            height: 150px; /* Adjust as needed */
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .video-play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .main-video-card:hover .video-play-overlay,
+        .sub-video-card:hover .video-play-overlay {
+            background: var(--secondary-gold);
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 1;
+        }
+
+        .video-modal .modal-dialog {
+            max-width: 900px;
+        }
+
+        .video-modal iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 15px;
+        }
+
+        /* Testimonial Add Form */
+        .testimonial-add-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-add-section i {
+            color: var(--primary-green);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: #f8f9fa;
+            padding: 4rem 0;
+        }
+
+        .stat-item h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Courses */
+        .course-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .course-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        /* Testimonial */
+        .testimonial-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-green);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stars i {
+            color: var(--secondary-gold);
+            font-size: 1.2rem;
+        }
+
+        .italic {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        /* Admission */
+        .admission-section {
+            background: linear-gradient(135deg, var(--primary-green), #20c997);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .admission-form {
+            background: rgba(255,255,255,0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            color: #333;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .social-links a {
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .display-5 {
+                font-size: 1.75rem;
+            }
+            
+            .stats-section {
+                padding: 2rem 0;
+            }
+            
+            .main-video-thumbnail {
+                height: 180px;
+            }
+            .sub-video-thumbnail {
+                height: 100px;
+            }
+            
+            .video-modal iframe { 
+                height: 300px; 
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-green);
+            border-radius: 4px;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYHAXdBXixLpAtQZSiX2r9dAIvC2CF7Qs",
+            authDomain: "almanhal-f858b.firebaseapp.com",
+            databaseURL: "https://almanhal-f858b-default-rtdb.firebaseio.com",
+            projectId: "almanhal-f858b",
+            storageBucket: "almanhal-f858b.firebasestorage.app",
+            messagingSenderId: "1085892990859",
+            appId: "1:1085892990859:web:aa88e5551159dd7f21818e",
+            measurementId: "G-6G3T9N83K9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const videosRef = database.ref('videos');
+        const testimonialsRef = database.ref('testimonials');
+        const coursesRef = database.ref('courses'); // Added for courses
+    </script>
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-mosque text-success me-2"></i>
+                আল মানহাল দারুল উলুম মাদ্রাসা
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#home">হোম</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#videos">ভিডিও</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#courses">কোর্স</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">প্রতিষ্ঠান</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#admission">ভর্তি</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">যোগাযোগ</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">বাংলা</a></li>
+                            <li><a class="dropdown-item" href="#">English</a></li>
+                            <li><a class="dropdown-item" href="#">العربية</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+            <div class="carousel-inner" id="heroCarouselInner">
+                <!-- Carousel items will be loaded here dynamically -->
+                <div class="carousel-item active">
+                    <div style="height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1573554304899-9b6f0f14ae47?w=1400') center/cover;"></div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <h1 class="display-4 fw-bold mb-4">ইসলামের আলো ছড়িয়ে দিন <span class="text-warning">জীবনে</span></h1>
+            <p class="lead mb-4">কুরআন-হাদিসভিত্তিক আধুনিক শিক্ষা | হিফজ, তাজওয়িদ, ফিকহ ও আরবি</p>
+            
+            <div class="sheikh-quote">
+                <i class="fas fa-quote-left me-2"></i>
+                "ইলমের মাধ্যমেই মানুষ আল্লাহর নৈকট্য লাভ করে। কুরআনের আলো ছাড়া জীবন অন্ধকার।"
+                <strong>- আল্লামা শেখ সাদিক</strong>
+                <i class="fas fa-quote-right ms-2"></i>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                <a href="#admission" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>এখনই ভর্তি হন
+                </a>
+                <a href="#videos" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-play-circle me-2"></i>ভিডিও দেখুন
+                </a>
+                <a href="#courses" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-book me-2"></i>কোর্স দেখুন
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- YouTube Videos Section - একটি গ্যালারি স্টাইলে -->
+    <section id="videos" class="videos-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">আমাদের ভিডিও গ্যালারি</h2>
+                <p class="lead text-muted">শিক্ষামূলক ইসলামি ভিডিও কালেকশন | Admin থেকে রিয়েল-টাইম আপডেট</p>
+            </div>
+            <div class="row g-4" id="videoContainer">
+                <!-- Firebase থেকে গ্যালারি লোড হবে -->
+                <p class="text-center text-muted">ভিডিও লোড হচ্ছে...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h2 id="students">0</h2>
+                        <p class="h6">ছাত্র-ছাত্রী</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h2 id="experience">0</h2>
+                        <p class="h6">বছরের অভিজ্ঞতা</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h2 id="success">0</h2>
+                        <p class="h6">সফলতার হার</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <h2 id="teachers">0</h2>
+                        <p class="h6">শিক্ষক</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">আমাদের কোর্সসমূহ</h2>
+                <p class="lead text-muted">বিভিন্ন স্তরের জন্য কুরআন-হাদিসভিত্তিক শিক্ষা</p>
+            </div>
+            <div class="row g-4" id="coursesContainer">
+                <!-- Courses will be loaded here dynamically from Firebase -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card course-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400" class="card-img-top" alt="হিফজ">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-book-open text-success me-2"></i>কুরআন হিফজ</h5>
+                            <p class="card-text">পূর্ণ কুরআন মুখস্থকরণ, তাজওয়িদ সহ সঠিক উচ্চারণ শিক্ষা।</p>
+                            <ul class="list-unstyled small text-muted">
+                                <li><i class="fas fa-clock me-2"></i>২ বছর</li>
+                                <li><i class="fas fa-users me-2"></i>৫-১২ বছর</li>
+                                <li><i class="fas fa-certificate me-2"></i>সার্টিফিকেট</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-success">বিস্তারিত <i class="fas fa-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="card course-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400" class="card-img-top" alt="তাজওয়িদ">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-volume-up text-success me-2"></i>তাজওয়িদ ও কিরাত</h5>
+                            <p class="card-text">কুরআনের সঠিক তিলাওয়াত ও ১০ কিরাত শিক্ষা।</p>
+                            <ul class="list-unstyled small text-muted">
+                                <li><i class="fas fa-clock me-2"></i>১ বছর</li>
+                                <li><i class="fas fa-users me-2"></i>সকল বয়স</li>
+                                <li><i class="fas fa-laptop me-2"></i>অনলাইন</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-success">বিস্তারিত <i class="fas fa-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="card course-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" class="card-img-top" alt="ফিকহ">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-balance-scale text-success me-2"></i>ফিকহ ও আকিদা</h5>
+                            <p class="card-text">হানাফি মাজহাব অনুসারে ফিকহ, আকিদা ও উসুল শিক্ষা।</p>
+                            <ul class="list-unstyled small text-muted">
+                                <li><i class="fas fa-clock me-2"></i>২ বছর</li>
+                                <li><i class="fas fa-users me-2"></i>১২+ বছর</li>
+                                <li><i class="fas fa-graduation-cap me-2"></i>ডিপ্লোমা</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline-success">বিস্তারিত <i class="fas fa-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" class="img-fluid rounded shadow" alt="প্রতিষ্ঠান" style="height: 400px; object-fit: cover;">
+                </div>
+                <div class="col-lg-6">
+                    <h2 class="fw-bold mb-4">আমাদের সম্পর্কে</h2>
+                    <p class="lead mb-3">আল মানহাল দারুল উলুম মাদ্রাসা কুরআন ও সুন্নাহভিত্তিক শিক্ষার ক্ষেত্রে নেতৃত্বদানী প্রতিষ্ঠান।</p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-check-circle text-success me-3 fs-4"></i>
+                                <div>
+                                    <h6>অনুমোদিত পাঠ্যক্রম</h6>
+                                    <small class="text-muted">মাদ্রাসা বোর্ড অনুমোদিত</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-laptop text-success me-3 fs-4"></i>
+                                <div>
+                                    <h6>অনলাইন ক্লাস</h6>
+                                    <small class="text-muted">সারা বিশ্ব থেকে ছাত্র</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-success">
+                        <i class="fas fa-arrow-right me-2"></i>বিস্তারিত জানুন
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">ছাত্রদের মতামত</h2>
+                <p class="lead text-muted">আমাদের শিক্ষার্থীদের সাফল্যের গল্প</p>
+            </div>
+
+            <div class="testimonial-add-section">
+                <h5 class="mb-3">
+                    <i class="fas fa-plus-circle me-2"></i>আপনার মতামত যোগ করুন
+                </h5>
+                <form id="testimonialForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <input type="text" class="form-control" id="testimonialName" placeholder="আপনার নাম" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <input type="text" class="form-control" id="testimonialCourse" placeholder="কোর্স/ক্লাস" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <select class="form-select" id="testimonialRating">
+                                <option value="5">★★★★★ (5)</option>
+                                <option value="4">★★★★☆ (4)</option>
+                                <option value="3">★★★☆☆ (3)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <textarea class="form-control" id="testimonialText" rows="3" placeholder="আপনার মতামত লিখুন..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success">
+                                <span id="submitTestimonialText">মতামত জমা দিন</span>
+                                <div id="loadingTestimonialSpinner" class="loading d-none" style="margin-left: 10px;"></div>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner" id="testimonialsContainer">
+                    <div class="carousel-item active">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="testimonial-card">
+                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100" class="rounded-circle mb-3 mx-auto d-block" alt="ছাত্র" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <h5 class="fw-bold text-success">মোহাম্মদ আহমেদ</h5>
+                                    <p class="text-muted mb-3">হিফজ কোর্স</p>
+                                    <p class="italic">"আল মানহালের শিক্ষকদের ত্যাগ ও নিষ্ঠার কারণে আমি পূর্ণ কুরআন হিফজ সম্পন্ন করতে পেরেছি।"</p>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admission Section -->
+    <section id="admission" class="admission-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4">
+                    <h2 class="fw-bold mb-4">এখনই ভর্তি হন</h2>
+                    <p class="lead mb-4">সীমিত আসন | তাড়াতাড়ি আবেদন করুন</p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar-alt me-3 fs-4 text-warning"></i>
+                                <strong>ভর্তির সময়: জানুয়ারি-মার্চ</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-phone me-3 fs-4 text-warning"></i>
+                                <strong>০১৭১২৩৪৫৬৭৮</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="tel:+8801712345678" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-phone me-2"></i>অবিলম্বে কল করুন
+                    </a>
+                    <a href="#" class="btn btn-warning btn-lg">
+                        <i class="fas fa-whatsapp me-2"></i>WhatsApp
+                    </a>
+                </div>
+                <div class="col-lg-6">
+                    <form id="admissionForm" class="admission-form">
+                        <h5 class="mb-3 text-success"><i class="fas fa-user-plus me-2"></i>দ্রুত যোগাযোগ</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" id="name" placeholder="পূর্ণ নাম" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="tel" class="form-control" id="phone" placeholder="মোবাইল নম্বর" required>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <input type="email" class="form-control" id="email" placeholder="ইমেইল ঠিকানা">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <select class="form-select" id="course" required>
+                                    <option value="">কোর্স নির্বাচন করুন</option>
+                                    <option value="hifz">কুরআন হিফজ</option>
+                                    <option value="tajweed">তাজওয়িদ ও কিরাত</option>
+                                    <option value="fiqh">ফিকহ ও আকিদা</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <span id="submitText">যোগাযোগ করুন</span>
+                                    <div id="loadingSpinner" class="loading d-none" style="margin-left: 10px;"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-mosque text-success me-2"></i>আল মানহাল দারুল উলুম মাদ্রাসা</h5>
+                    <p>কুরআন ও সুন্নাহভিত্তিক শিক্ষার মাধ্যমে একজন সচ্চর আল্লাহর বান্দা গড়ার লক্ষ্যে কাজ করছি।</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6>দ্রুত লিঙ্ক</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#home" class="text-white text-decoration-none">হোম</a></li>
+                        <li><a href="#videos" class="text-white text-decoration-none">ভিডিও</a></li>
+                        <li><a href="#courses" class="text-white text-decoration-none">কোর্স</a></li>
+                        <li><a href="#admission" class="text-white text-decoration-none">ভর্তি</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6>যোগাযোগ</h6>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>ঢাকা, বাংলাদেশ</p>
+                    <p><i class="fas fa-phone me-2"></i>+880 1712-345678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@almanhal.edu</p>
+                    <p><i class="fas fa-clock me-2"></i>সপ্তাহে ৬ দিন | ৮:০০-৫:০০</p>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h6>নিউজলেটার</h6>
+                    <p>নতুন আপডেটের জন্য সাবস্ক্রাইব করুন</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="ইমেইল ঠিকানা">
+                        <button class="btn btn-success" type="button">সাবস্ক্রাইব</button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; ২০২৫ আল মানহাল দারুল উলুম মাদ্রাসা। সকল অধিকার সংরক্ষিত। | মাদ্রাসা বোর্ড অনুমোদিত</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Video Modal -->
+    <div class="modal fade video-modal" id="videoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoTitle">ভিডিও প্লে হচ্ছে</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Hero Carousel Images - ইসলামিক থিমের ছবি
+        const heroImages = [
+            { url: 'https://images.unsplash.com/photo-1573554304899-9b6f0f14ae47?w=1400', alt: 'Islamic Madrassa Students' },
+            { url: 'https://images.unsplash.com/photo-1533107080277-c37000e31945?w=1400', alt: 'Reading Quran' },
+            { url: 'https://images.unsplash.com/photo-1522035900593-5494d9b4b0a4?w=1400', alt: 'Islamic Architecture' },
+            { url: 'https://images.unsplash.com/photo-1522543590483-ee0b457e5b60?w=1400', alt: 'Teachers and Students' }
+        ];
+
+        // Sample Videos (Firebase থেকে real-time আপডেট হবে)
+        const initialVideos = [
+            { 
+                id: 'dQw4w9WgXcQ', 
+                title: 'কুরআন তিলাওয়াতের সঠিক পদ্ধতি', 
+                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+                duration: '10:30'
+            },
+            { 
+                id: '3JZ_D3ELwOQ', 
+                title: 'তাজওয়িদ শিক্ষা - মাখারিজ', 
+                thumbnail: 'https://img.youtube.com/vi/3JZ_D3ELwOQ/maxresdefault.jpg',
+                duration: '15:45'
+            },
+            { 
+                id: 'kJQP7kiw5Fk', 
+                title: 'হিফজ মেমোরি টেকনিক', 
+                thumbnail: 'https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg',
+                duration: '8:20'
+            },
+            { 
+                id: 'yUsh02uVJLE', 
+                title: 'হানাফি ফিকহের মৌলিক নীতি', 
+                thumbnail: 'https://img.youtube.com/vi/yUsh02uVJLE/maxresdefault.jpg',
+                duration: '12:15'
+            }
+        ];
+
+        // Load Hero Carousel Images
+        function loadHeroCarousel() {
+            const carouselInner = document.getElementById('heroCarouselInner');
+            carouselInner.innerHTML = ''; // Clear existing
+
+            heroImages.forEach((image, index) => {
+                const item = document.createElement('div');
+                item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+                item.innerHTML = `
+                    <div style="height: 100vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${image.url}') center/cover;"></div>
+                `;
+                carouselInner.appendChild(item);
+            });
+        }
+
+
+        // Load Videos from Firebase with 1-2-2 layout
+        function loadVideos() {
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = '<p class="text-center text-muted">ভিডিও লোড হচ্ছে...</p>'; // Loading message
+
+            videosRef.on('value', snapshot => {
+                const videos = snapshot.val() || {};
+                let videoArray = Object.values(videos); 
+
+                // If no videos in Firebase, use initial sample videos
+                if (videoArray.length === 0) {
+                    videoArray = initialVideos;
+                }
+                
+                // Shuffle array and take top 5 for display variety
+                videoArray = videoArray.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+                container.innerHTML = ''; // Clear loading message
+
+                if (videoArray.length > 0) {
+                    // First video (12 column)
+                    const mainVideo = videoArray[0];
+                    const mainCol = document.createElement('div');
+                    mainCol.className = 'col-12';
+                    mainCol.innerHTML = `
+                        <div class="main-video-card shadow" data-video-id="${mainVideo.id}" data-title="${mainVideo.title}">
+                            <img src="${mainVideo.thumbnail}" class="main-video-thumbnail" alt="${mainVideo.title}">
+                            <div class="video-play-overlay"><i class="fas fa-play"></i></div>
+                            <div class="p-3">
+                                <h6 class="mb-1">${mainVideo.title}</h6>
+                                <p class="small text-muted mb-0"><i class="fas fa-clock me-1"></i>${mainVideo.duration}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(mainCol);
+
+                    // Remaining videos (2-2 or 3-4 column layout - using 2 per row for visual balance)
+                    const subVideos = videoArray.slice(1);
+                    if (subVideos.length > 0) {
+                        const subRow = document.createElement('div');
+                        subRow.className = 'row g-4 mt-3'; // New row for sub-videos
+                        subVideos.forEach(video => {
+                            const subCol = document.createElement('div');
+                            subCol.className = 'col-md-6'; // Adjust to col-md-6 for two videos per row
+                            subCol.innerHTML = `
+                                <div class="sub-video-card shadow h-100" data-video-id="${video.id}" data-title="${video.title}">
+                                    <img src="${video.thumbnail}" class="sub-video-thumbnail" alt="${video.title}">
+                                    <div class="video-play-overlay"><i class="fas fa-play"></i></div>
+                                    <div class="p-3">
+                                        <h6 class="mb-1">${video.title}</h6>
+                                        <p class="small text-muted mb-0"><i class="fas fa-clock me-1"></i>${video.duration}</p>
+                                    </div>
+                                </div>
+                            `;
+                            subRow.appendChild(subCol);
+                        });
+                        container.appendChild(subRow);
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-center text-muted">এই মুহূর্তে কোনো ভিডিও নেই।</p>';
+                }
+
+                // Add click event listeners for all video cards
+                container.querySelectorAll('.main-video-card, .sub-video-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const videoId = this.dataset.videoId;
+                        const title = this.dataset.title;
+                        document.getElementById('videoPlayer').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                        document.getElementById('videoTitle').textContent = title;
+                        new bootstrap.Modal(document.getElementById('videoModal')).show();
+                    });
+                });
+            });
+        }
+
+
+        // Firebase Testimonial Functions
+        document.getElementById('testimonialForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitTestimonialText = document.getElementById('submitTestimonialText');
+            const loadingTestimonialSpinner = document.getElementById('loadingTestimonialSpinner');
+            
+            submitTestimonialText.textContent = 'জমা হচ্ছে...';
+            loadingTestimonialSpinner.classList.remove('d-none');
+
+            const name = document.getElementById('testimonialName').value;
+            const course = document.getElementById('testimonialCourse').value;
+            const rating = document.getElementById('testimonialRating').value;
+            const text = document.getElementById('testimonialText').value;
+
+            const testimonial = {
+                name: name,
+                course: course,
+                rating: parseInt(rating),
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                approved: false // Admin approval needed
+            };
+
+            testimonialsRef.push(testimonial)
+                .then(() => {
+                    alert('✅ আপনার মতামত সফলভাবে জমা দেওয়া হয়েছে!\nপর্যালোচনার পর এটি প্রদর্শিত হবে।\nজাযাকাল্লাহু খাইরান।');
+                    this.reset();
+                    submitTestimonialText.textContent = 'মতামত জমা দিন';
+                    loadingTestimonialSpinner.classList.add('d-none');
+                    // loadTestimonials(); // Only load approved testimonials
+                })
+                .catch(error => {
+                    alert('❌ ত্রুটি: ' + error.message);
+                    submitTestimonialText.textContent = 'মতামত জমা দিন';
+                    loadingTestimonialSpinner.classList.add('d-none');
+                });
+        });
+
+        // Load Approved Testimonials from Firebase
+        function loadTestimonials() {
+            testimonialsRef.orderByChild('approved').equalTo(true).on('value', snapshot => {
+                const container = document.getElementById('testimonialsContainer');
+                container.innerHTML = ''; // Clear existing
+                let hasActive = false;
+                const testimonialsArray = [];
+
+                snapshot.forEach(childSnapshot => {
+                    testimonialsArray.push(childSnapshot.val());
+                });
+
+                if (testimonialsArray.length === 0) {
+                     // Add a default testimonial if none are approved
+                    const defaultTestimonial = {
+                        name: 'মোহাম্মদ আহমেদ (ডিফল্ট)',
+                        course: 'হিফজ কোর্স',
+                        text: 'আল মানহালের শিক্ষকদের ত্যাগ ও নিষ্ঠার কারণে আমি পূর্ণ কুরআন হিফজ সম্পন্ন করতে পেরেছি।',
+                        rating: 5
+                    };
+                    testimonialsArray.push(defaultTestimonial);
+                }
+
+                testimonialsArray.forEach((testimonial, index) => {
+                    const item = document.createElement('div');
+                    item.className = `carousel-item ${!hasActive ? 'active' : ''}`;
+                    if (!hasActive) hasActive = true;
+                    
+                    item.innerHTML = `
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="testimonial-card text-center p-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-user-circle text-success fs-1"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-success">${testimonial.name}</h5>
+                                    <p class="text-muted mb-2">${testimonial.course}</p>
+                                    <p class="italic mb-3">"${testimonial.text}"</p>
+                                    <div class="stars">
+                                        ${'<i class="fas fa-star text-warning"></i>'.repeat(testimonial.rating)}
+                                        ${'<i class="far fa-star text-muted"></i>'.repeat(5 - testimonial.rating)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+
+                 // If only one testimonial, hide carousel controls
+                if (testimonialsArray.length <= 1) {
+                    document.querySelector('.carousel-control-prev').style.display = 'none';
+                    document.querySelector('.carousel-control-next').style.display = 'none';
+                } else {
+                    document.querySelector('.carousel-control-prev').style.display = 'flex';
+                    document.querySelector('.carousel-control-next').style.display = 'flex';
+                }
+            });
+        }
+
+        // Load Courses from Firebase
+        function loadCourses() {
+            const container = document.getElementById('coursesContainer');
+            container.innerHTML = '<p class="text-center text-muted">কোর্স লোড হচ্ছে...</p>'; // Loading message
+
+            coursesRef.on('value', snapshot => {
+                const courses = snapshot.val() || {};
+                const courseArray = Object.values(courses);
+                
+                container.innerHTML = ''; // Clear loading message
+
+                if (courseArray.length > 0) {
+                    courseArray.forEach(course => {
+                        const col = document.createElement('div');
+                        col.className = 'col-lg-4 col-md-6';
+                        col.innerHTML = `
+                            <div class="card course-card shadow-sm">
+                                <img src="${course.imageUrl || 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400'}" class="card-img-top" alt="${course.title}">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-book-open text-success me-2"></i>${course.title}</h5>
+                                    <p class="card-text">${course.description}</p>
+                                    <ul class="list-unstyled small text-muted">
+                                        <li><i class="fas fa-clock me-2"></i>${course.duration}</li>
+                                        <li><i class="fas fa-users me-2"></i>${course.ageGroup}</li>
+                                        <li><i class="fas fa-certificate me-2"></i>${course.certification}</li>
+                                    </ul>
+                                    <a href="${course.detailsLink || '#'}" class="btn btn-outline-success">বিস্তারিত <i class="fas fa-arrow-right ms-2"></i></a>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(col);
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-center text-muted">এই মুহূর্তে কোনো কোর্স উপলব্ধ নেই।</p>';
+                }
+            });
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect - NON-STICKY
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255,255,255,0.98)';
+                navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(255,255,255,0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+
+        // Counter animation
+        function animateCounter(id, start, end, duration = 2000) {
+            let startTime = null;
+            const step = (timestamp) => {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const current = Math.floor(progress * end + (1 - progress) * start);
+                document.getElementById(id).textContent = current + (end > 1000 ? 'k+' : end === 100 ? '%' : '+');
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    document.getElementById(id).textContent = end + (end > 1000 ? 'k+' : end === 100 ? '%' : '+');
+                }
+            };
+            requestAnimationFrame(step);
+        }
+
+        // Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter('students', 0, 1500);
+                    animateCounter('experience', 0, 25);
+                    animateCounter('success', 0, 100);
+                    animateCounter('teachers', 0, 50);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        observer.observe(document.querySelector('.stats-section'));
+
+        // Form submission
+        document.getElementById('admissionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            submitText.textContent = 'জমা হচ্ছে...';
+            loadingSpinner.classList.remove('d-none');
+            
+            // Simulate API call or form submission
+            setTimeout(() => {
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                const course = document.getElementById('course').value;
+                
+                alert(`শুভেচ্ছা ${name}!\n\nআপনার আবেদনটি সফলভাবে গ্রহণ করা হয়েছে।\nকোর্স: ${course}\nফোন: ${phone}\n\nআমরা ২৪ ঘণ্টার মধ্যে যোগাযোগ করব।\n\nজাযাকাল্লাহু খাইরান।`);
+                
+                submitText.textContent = 'যোগাযোগ করুন';
+                loadingSpinner.classList.add('d-none');
+                this.reset();
+            }, 2000);
+        });
+
+        // Active nav link
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Carousel pause on hover
+        document.querySelectorAll('.carousel').forEach(carousel => {
+            const bsCarousel = new bootstrap.Carousel(carousel);
+            carousel.addEventListener('mouseenter', () => bsCarousel.pause());
+            carousel.addEventListener('mouseleave', () => bsCarousel.cycle());
+        });
+
+        // Video Modal close
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('videoPlayer').src = ''; // Stop video playback
+        });
+
+        // WhatsApp integration
+        document.querySelectorAll('a[href*="whatsapp"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const phone = '8801712345678'; // Add country code
+                const message = 'আসসালামু আলাইকুম। আমি আল মানহাল দারুল উলুম মাদ্রাসা সম্পর্কে জানতে চাই।';
+                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHeroCarousel();
+            loadVideos();
+            loadTestimonials();
+            loadCourses();
+        });
+    </script>
+</body>
+</html>
